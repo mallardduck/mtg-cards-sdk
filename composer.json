@@ -1,0 +1,17 @@
+{
+    "name": "mallardduck/mtg-cards-sdk",
+    "autoload": {
+        "psr-4": {
+            "MallardDuck\\MtgCardsSdk\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Dan Pock",
+            "email": "self@danpock.me"
+        }
+    ],
+    "require": {
+        "nesbot/carbon": "^2.66"
+    }
+}
