@@ -49,7 +49,7 @@ abstract class AbstractGenerateEnumAction extends AbstractRenderAction
         foreach ($details as $case) {
             $enum->addCase($case['name'], $case['value']);
             // Also push this into set body stack.
-            $matchCases[$case['name']] = $case['label'];
+            $matchCases[sprintf('%s::%s', $this->rendersClass, $case['name'])] = $case['label'];
         }
         $getLabelMethod->setBody(sprintf(
             'return %s;',
