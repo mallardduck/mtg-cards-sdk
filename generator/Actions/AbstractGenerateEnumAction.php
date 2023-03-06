@@ -53,7 +53,9 @@ abstract class AbstractGenerateEnumAction extends AbstractRenderAction
         }
         $getLabelMethod->setBody(sprintf(
             'return %s;',
-            parent::render('match.twig', ['cases' => $matchCases])
+            parent::render('match.twig', [
+                'cases' => $matchCases,
+            ])
         ));
         $namespace->add($enum);
 
