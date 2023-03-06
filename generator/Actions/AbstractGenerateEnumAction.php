@@ -18,8 +18,8 @@ abstract class AbstractGenerateEnumAction extends AbstractRenderAction
         while ($row = $this->results->fetchArray()) {
             $enumDetails[] = [
                 'name' => u($row[0])->camel()->title()->toString(),
-                'label' => u($row[0])->replace('_', ' ')->title()->toString(),
-                'value'=> $row[0],
+                'label'=> $row[0],
+                'value' => u($row[0])->snake()->toString(),
             ];
         }
         usort(

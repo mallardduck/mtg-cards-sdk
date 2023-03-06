@@ -28,20 +28,4 @@ WHERE
 HERE
 );
     }
-
-    public function __invoke() {
-        $enumDetails = [];
-        while ($row = $this->results->fetchArray()) {
-            $enumDetails[] = [
-                'name' => u($row[0])->camel()->title()->toString(),
-                'label'=> $row[0],
-                'value' => u($row[0])->snake()->toString(),
-            ];
-        }
-        usort(
-            $enumDetails,
-            static fn ($a, $b) => $a <=> $b,
-        );
-        $this->save($this->renderEnum($enumDetails));
-    }
 }
