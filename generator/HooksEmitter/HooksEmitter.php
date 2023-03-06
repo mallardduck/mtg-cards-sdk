@@ -27,7 +27,7 @@ final class HooksEmitter
     public static function getInstance() {
         if (!isset(self::$instance)) {
             self::$instance = new HooksEmitter();
-            self::$instance->doAction(Events::AfterEmitterSetup->value, self::$instance);
+            self::$instance->doAction(Events::AfterEmitterSetup->eventSuffixedKey(), self::$instance);
         }
         return self::$instance;
     }

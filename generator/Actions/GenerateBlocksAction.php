@@ -20,7 +20,7 @@ class GenerateBlocksAction extends AbstractGenerateEnumAction
     public static function registerHooks(HooksEmitter $emitter): void
     {
         $emitter->addFilter(
-            Events::PreEnumFormatSkip->value . '_' . static::class_basename(static::class),
+            Events::PreEnumFormatSkip->eventSuffixedKey(static::class_basename(static::class)),
             function (array $value): array|bool {
                 return $value['value'] === null;
             },

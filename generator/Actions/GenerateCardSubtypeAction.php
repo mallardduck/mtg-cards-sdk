@@ -15,7 +15,7 @@ class GenerateCardSubtypeAction extends AbstractGenerateEnumAction
     public static function registerHooks(HooksEmitter $emitter): void
     {
         $emitter->addFilter(
-            Events::PreEnumFormatSkip->value . '_' . static::class_basename(static::class),
+            Events::PreEnumFormatSkip->eventSuffixedKey(static::class_basename(static::class)),
             function (array $value): bool|array {
                 return ($value['value'] === 'Elemental?' || empty($value['value']));
             },

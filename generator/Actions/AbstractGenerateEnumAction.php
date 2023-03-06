@@ -16,9 +16,10 @@ abstract class AbstractGenerateEnumAction extends AbstractRenderAction
         $this->query();
         $enumDetails = [];
         while ($row = $this->results->fetchArray()) {
-            if ($emitter->hasFilter(Events::PreEnumFormatSkip->value . '_' . $this->getBasename())) {
+            $eventTarget = Events::PreEnumFormatSkip->eventSuffixedKey($this->getBasename());
+            if ($emitter->hasFilter($eventTarget)) {
                 $skipRow = $emitter->applyFilters(
-                    Events::PreEnumFormatSkip->value . '_' . $this->getBasename(),
+                    $eventTarget,
                     [
                         'context' => $this::class_basename($this),
                         'value' => $row[0],
