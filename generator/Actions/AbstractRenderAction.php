@@ -9,9 +9,10 @@ use Twig\Loader\FilesystemLoader;
 abstract class AbstractRenderAction
 {
     const NAMESPACE_BASE = "MallardDuck\MtgCardsSdk";
+    protected string $rendersClass = 'SetType';
 
     protected ?string $subNamespace = null;
-    protected string $renderTo;
+    protected string $renderTo = __DIR__ . '/../../src/';
     protected static function render(string $template, array $data): string
     {
         $loader = new FilesystemLoader(__DIR__.'/../templates');
@@ -32,10 +33,16 @@ abstract class AbstractRenderAction
 
     protected function save(string $code)
     {
-        if (!is_dir(dirname($this->renderTo))) {
-            mkdir(dirname($this->renderTo));
+        $renderPath = sprintf(
+            '%s%s',
+            $this->renderTo,
+            str_replace('\\', '/', $this->subNamespace)
+        );
+        if (!is_dir($renderPath)) {
+            mkdir($renderPath);
         }
-        file_put_contents($this->renderTo, sprintf(
+        $renderFile = $renderPath . '/' . $this->rendersClass . '.php';
+        file_put_contents($renderFile, sprintf(
             '<?php declare(strict_types=1);%1$s%1$s%2$s',
             PHP_EOL,
             $code

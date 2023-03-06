@@ -8,15 +8,14 @@ use SQLite3;
 use SQLite3Result;
 use function Symfony\Component\String\u;
 
-class GenerateSetTypeAction extends AbstractRenderAction
+class GenerateSetTypeAction extends AbstractGenerateEnumAction
 {
-    protected ?string $subNamespace = 'Enums';
-    protected string $renderTo = __DIR__ . '/../../src/Enums/SetType.php';
+    protected string $rendersClass = 'SetType';
 
-    private SQLite3Result $results;
+    protected SQLite3Result $results;
 
     public function __construct(
-        private SQLite3 $db,
+        SQLite3 $db,
     ) {
         $this->results = $db->query('SELECT DISTINCT type FROM sets;');
     }
@@ -35,36 +34,5 @@ class GenerateSetTypeAction extends AbstractRenderAction
             static fn ($a, $b) => $a <=> $b,
         );
         $this->save($this->renderEnum($enumDetails));
-    }
-
-    /**
-     * @param array{name: string, label: string, value: string}[] $details
-     * @return string
-     */
-    public function renderEnum(array $details): string
-    {
-        $namespace = $this->getNamespace();
-        $enum = new EnumType('SetType');
-        $enum->addMethod('label')
-            ->setReturnType('string')
-            ->setBody('return static::getLabel($this);');
-        $getLabelMethod = $enum->addMethod('getLabel')
-            ->setStatic(true)
-            ->setReturnType('string');
-        $getLabelMethod->addParameter('value')
-            ->setType('self');
-        $matchCases = [];
-        foreach ($details as $case) {
-            $enum->addCase($case['name'], $case['value']);
-            // Also push this into set body stack.
-            $matchCases[$case['name']] = $case['label'];
-        }
-        $getLabelMethod->setBody(sprintf(
-            'return %s;',
-            parent::render('match.twig', ['cases' => $matchCases])
-        ));
-        $namespace->add($enum);
-
-        return (string) $namespace;
     }
 }
