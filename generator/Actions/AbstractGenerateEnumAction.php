@@ -35,7 +35,6 @@ abstract class AbstractGenerateEnumAction extends AbstractRenderAction
      */
     public function renderEnum(array $details): string
     {
-        $namespace = $this->getNamespace();
         $enum = new EnumType($this->rendersClass);
         $enum->addMethod('label')
             ->setReturnType('string')
@@ -58,6 +57,7 @@ abstract class AbstractGenerateEnumAction extends AbstractRenderAction
             ])
         ));
         $enum->addComment("@see " . $this->class_basename($this));
+        $namespace = $this->getNamespace();
         $namespace->add($enum);
         $namespace->addUse(self::class);
 
