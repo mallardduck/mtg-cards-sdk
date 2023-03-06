@@ -11,28 +11,35 @@ abstract class AbstractGenerateEnumAction extends AbstractRenderAction
 {
     protected ?string $subNamespace = 'Enums';
 
+    abstract public static function getEnumMainColumn(): string;
+
     public function __invoke(): void {
         $emitter = HooksEmitter::getInstance();
         $this->query();
         $enumDetails = [];
-        while ($row = $this->results->fetchArray()) {
-            $eventTarget = Events::PreEnumFormatSkip->eventSuffixedKey($this->getBasename());
-            if ($emitter->hasFilter($eventTarget)) {
+        while ($row = $this->getResultsRowArray()) {
+            $skipRowTarget = Events::PreEnumFormatSkip->eventSuffixedKey($this->getBasename());
+            if ($emitter->hasFilter($skipRowTarget)) {
                 $skipRow = $emitter->applyFilters(
-                    $eventTarget,
-                    [
-                        'context' => $this::class_basename($this),
-                        'value' => $row[0],
-                    ]
+                    $skipRowTarget,
+                    $row
                 ) ?? false;
                 if ($skipRow) continue;
             }
-            // TODO: Add a filter here too for custom string handling...
-            $enumDetails[] = [
-                'name' => u($row[0])->camel()->title()->toString(),
-                'label'=> $row[0],
-                'value' => u($row[0])->snake()->toString(),
-            ];
+            $prepareEnumTarget = Events::PreEnumFormat->eventSuffixedKey($this->getBasename());
+            if ($emitter->hasAction($prepareEnumTarget)) {
+                $prepared = $emitter->applyFilters(
+                    $prepareEnumTarget,
+                    $row
+                );
+                if ($row !== $prepared) {
+                    $enumDetails[] = $prepared;
+                } else {
+                    $enumDetails[] = $this->defaultEnumPrepare($row);
+                }
+            } else {
+                $enumDetails[] = $this->defaultEnumPrepare($row);
+            }
         }
         usort(
             $enumDetails,
@@ -41,12 +48,27 @@ abstract class AbstractGenerateEnumAction extends AbstractRenderAction
         $this->save($this->renderEnum($enumDetails));
     }
 
+    protected function defaultEnumPrepare(array $value): array
+    {
+        return [
+            'name' => u($value[$this->getEnumMainColumn()])->camel()->title()->toString(),
+            'label'=> $value[$this->getEnumMainColumn()],
+            'value' => u($value[$this->getEnumMainColumn()])->snake()->toString(),
+        ];
+    }
+
+    protected function getResultsRowArray(): array|bool
+    {
+        return $this->results->fetchArray(SQLITE3_ASSOC);
+    }
+
     /**
      * @param array{name: string, label: string, value: string}[] $details
      * @return string
      */
     public function renderEnum(array $details): string
     {
+        $emitter = HooksEmitter::getInstance();
         $enum = new EnumType($this->rendersClass);
         try {
             $enum->addMethod('label')
@@ -69,10 +91,17 @@ abstract class AbstractGenerateEnumAction extends AbstractRenderAction
                     'cases' => $matchCases,
                 ])
             ));
-            $enum->addComment("@see " . $this->class_basename($this));
+            $enum->addComment("@see \\" . static::class);
+            $preEnumInsert = Events::PreEnumInserted->eventSuffixedKey($this->getBasename());
+            if ($emitter->hasAction($preEnumInsert)) {
+                $emitter->doAction(
+                    $preEnumInsert,
+                    $enum,
+                    $details,
+                );
+            }
             $namespace = $this->getNamespace();
             $namespace->add($enum);
-            $namespace->addUse(self::class);
         } catch (\Throwable $throwable) {
             dd($throwable, $this->getBasename(),);
         }

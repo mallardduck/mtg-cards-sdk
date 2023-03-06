@@ -6,15 +6,20 @@ class GenerateCardBorderColorAction extends AbstractGenerateEnumAction
 {
     protected string $rendersClass = 'CardBorderColor';
 
+    public static function getEnumMainColumn(): string
+    {
+        return 'borderColor';
+    }
+
     public function query(): void
     {
         $this->results = $this->db->query(<<<HERE
 SELECT DISTINCT
-    borderColor
+    {$this->getEnumMainColumn()}
 FROM
     cards
 WHERE
-    borderColor IS NOT NULL;
+    {$this->getEnumMainColumn()} IS NOT NULL;
 HERE
         );
     }

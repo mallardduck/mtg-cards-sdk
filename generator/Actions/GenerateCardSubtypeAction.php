@@ -6,20 +6,24 @@ use MallardDuck\MtgCardsSdk\Generator\Events;
 use MallardDuck\MtgCardsSdk\Generator\HooksEmitter\HooksEmitter;
 
 /**
- * @see \MallardDuck\MtgCardsSdk\Enums\CardType
+ * @see \MallardDuck\MtgCardsSdk\Enums\CardSubtype
  */
 class GenerateCardSubtypeAction extends AbstractGenerateEnumAction
 {
     protected string $rendersClass = 'CardSubtype';
+
+    public static function getEnumMainColumn(): string
+    {
+        return 'type_value';
+    }
 
     public static function registerHooks(HooksEmitter $emitter): void
     {
         $emitter->addFilter(
             Events::PreEnumFormatSkip->eventSuffixedKey(static::class_basename(static::class)),
             function (array $value): bool|array {
-                return ($value['value'] === 'Elemental?' || empty($value['value']));
+                return ($value['type_value'] === 'Elemental?' || empty($value['type_value']));
             },
-            2
         );
     }
 
@@ -27,11 +31,11 @@ class GenerateCardSubtypeAction extends AbstractGenerateEnumAction
     {
         $this->results = $this->db->query(<<<HERE
 SELECT DISTINCT
-    substr(subtypes, 0, instr(subtypes || ',', ',')) AS type_value
+    substr(subtypes, 0, instr(subtypes || ',', ',')) AS {$this->getEnumMainColumn()}
 FROM
     cards
 WHERE
-    type_value IS NOT NULL;
+    {$this->getEnumMainColumn()} IS NOT NULL;
 HERE
         );
     }

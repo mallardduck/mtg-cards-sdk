@@ -32,12 +32,12 @@ final class HooksEmitter
         return self::$instance;
     }
 
-    public function addFilter($tag, $functionToAdd, $priority = 10, $acceptedArgs = 1)
+    public function addFilter($tag, $functionToAdd, $priority = 10, $acceptedArgs = null): bool
     {
         $idx = $this->filterBuildUniqueId($tag, $functionToAdd, $priority);
         $this->filters[$tag][$priority][$idx] = [
             'function' => $functionToAdd,
-            'accepted_args' => $acceptedArgs
+            'accepted_args' => $acceptedArgs ?? (new \ReflectionFunction($functionToAdd))->getNumberOfParameters()
         ];
         unset($this->mergedFilters[$tag]);
         return true;
@@ -59,7 +59,7 @@ final class HooksEmitter
         return $results;
     }
 
-    public function removeAllFilters($tag, $priority = false)
+    public function removeAllFilters($tag, $priority = false): bool
     {
         if (isset($this->filters[$tag])) {
             if (false !== $priority && isset($this->filters[$tag][$priority])) {
@@ -95,8 +95,8 @@ final class HooksEmitter
         return false;
     }
 
-    public function applyFilters($tag, $value) {
-        $args = array();
+    public function applyFilters($tag, ...$value) {
+        $args = $value;
         // Do 'all' actions first
         if ( isset($this->filters['all']) ) {
             $this->currentFilter[] = $tag;
@@ -128,7 +128,7 @@ final class HooksEmitter
             foreach( (array) current($this->filters[$tag]) as $the_ )
                 if ( !is_null($the_['function']) ){
                     $args[1] = $value;
-                    $value = call_user_func_array($the_['function'], array_slice($args, 1, (int) $the_['accepted_args']));
+                    $value = call_user_func_array($the_['function'], ...array_slice($args, 1, (int) $the_['accepted_args']));
                 }
 
         } while ( next($this->filters[$tag]) !== false );
@@ -179,7 +179,7 @@ final class HooksEmitter
         return $args[0];
     }
 
-    public function addAction($tag, $function_to_add, $priority = 10, $accepted_args = 1) {
+    public function addAction($tag, $function_to_add, $priority = 10, $accepted_args = null) {
         return $this->addFilter($tag, $function_to_add, $priority, $accepted_args);
     }
 
@@ -195,12 +195,8 @@ final class HooksEmitter
         return $this->removeAllFilters($tag, $priority);
     }
 
-    public function doAction($tag, $arg = '')
+    public function doAction($tag, &...$arg)
     {
-        if (!isset($this->actions)) {
-            $this->actions = array();
-        }
-
         if (!isset($this->actions[$tag])) {
             $this->actions[$tag] = 1;
         } else {
@@ -209,7 +205,7 @@ final class HooksEmitter
 
         // Do 'all' actions first
         if (isset($this->filters['all'])) {
-            $this->current_filter[] = $tag;
+            $this->currentFilter[] = $tag;
             $all_args = func_get_args();
             $this->callAllHook($all_args);
         }
@@ -225,16 +221,6 @@ final class HooksEmitter
             $this->currentFilter[] = $tag;
         }
 
-        $args = array();
-        if (is_array($arg) && 1 == count($arg) && isset($arg[0]) && is_object($arg[0])) { // array(&$this)
-            $args[] =& $arg[0];
-        } else {
-            $args[] = $arg;
-        }
-        for ($a = 2; $a < func_num_args(); $a++) {
-            $args[] = func_get_arg($a);
-        }
-
         // Sort
         if (!isset($this->mergedFilters[$tag])) {
             ksort($this->filters[$tag]);
@@ -246,7 +232,7 @@ final class HooksEmitter
         do {
             foreach ((array) current($this->filters[$tag]) as $the_) {
                 if (!is_null($the_['function'])) {
-                    call_user_func_array($the_['function'], array_slice($args, 0, (int) $the_['accepted_args']));
+                    call_user_func_array($the_['function'], $arg);
                 }
             }
         } while (next($this->filters[$tag]) !== false);

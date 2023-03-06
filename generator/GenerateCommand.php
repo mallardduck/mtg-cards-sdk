@@ -1,6 +1,6 @@
 <?php
 
-namespace MallardDuck\MtgCardsSdk\Generator\Console;
+namespace MallardDuck\MtgCardsSdk\Generator;
 
 use MallardDuck\MtgCardsSdk\Generator\Actions;
 use MallardDuck\MtgCardsSdk\Generator\HooksEmitter\HooksEmitter;
@@ -13,6 +13,7 @@ class GenerateCommand extends Command
     private const ACTIONS = [
         Actions\GenerateBlocksAction::class,
         Actions\GenerateSetTypeAction::class,
+        Actions\GenerateSetCodeAction::class,
         Actions\GenerateCardTypeAction::class,
         Actions\GenerateCardSupertypeAction::class,
         Actions\GenerateCardSubtypeAction::class,
@@ -23,7 +24,7 @@ class GenerateCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output)
     {
         $emitter = HooksEmitter::getInstance();
-        $printingsDb = new \SQLite3(dirname(__DIR__, 2) . '/blobs/AllPrintings.sqlite');
+        $printingsDb = new \SQLite3(dirname(__DIR__, 1) . '/blobs/AllPrintings.sqlite');
         $actionClasses = [];
         foreach(self::ACTIONS as $actionClass) {
             /**
@@ -34,7 +35,6 @@ class GenerateCommand extends Command
             $actionClasses[] = $instance;
         }
         foreach($actionClasses as $actionClass) {
-            //$actionClass::registerHooks($emitter);
             $actionClass();
         }
     }

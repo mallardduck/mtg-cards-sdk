@@ -2,10 +2,8 @@
 
 namespace MallardDuck\MtgCardsSdk\Enums;
 
-use MallardDuck\MtgCardsSdk\Generator\Actions\AbstractGenerateEnumAction;
-
 /**
- * @see GenerateCardBorderColorAction
+ * @see \MallardDuck\MtgCardsSdk\Generator\Actions\GenerateCardBorderColorAction
  */
 enum CardBorderColor: string
 {

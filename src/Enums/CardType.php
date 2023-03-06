@@ -2,10 +2,8 @@
 
 namespace MallardDuck\MtgCardsSdk\Enums;
 
-use MallardDuck\MtgCardsSdk\Generator\Actions\AbstractGenerateEnumAction;
-
 /**
- * @see GenerateCardTypeAction
+ * @see \MallardDuck\MtgCardsSdk\Generator\Actions\GenerateCardTypeAction
  */
 enum CardType: string
 {
