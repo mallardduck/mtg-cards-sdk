@@ -57,7 +57,9 @@ abstract class AbstractGenerateEnumAction extends AbstractRenderAction
                 'cases' => $matchCases,
             ])
         ));
+        $enum->addComment("@see " . $this->class_basename($this));
         $namespace->add($enum);
+        $namespace->addUse(self::class);
 
         return (string) $namespace;
     }

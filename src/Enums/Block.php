@@ -2,6 +2,11 @@
 
 namespace MallardDuck\MtgCardsSdk\Enums;
 
+use MallardDuck\MtgCardsSdk\Generator\Actions\AbstractGenerateEnumAction;
+
+/**
+ * @see GenerateBlocksAction
+ */
 enum Block: string
 {
 	case Alara = 'alara';

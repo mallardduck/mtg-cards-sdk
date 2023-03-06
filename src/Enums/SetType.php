@@ -2,6 +2,11 @@
 
 namespace MallardDuck\MtgCardsSdk\Enums;
 
+use MallardDuck\MtgCardsSdk\Generator\Actions\AbstractGenerateEnumAction;
+
+/**
+ * @see GenerateSetTypeAction
+ */
 enum SetType: string
 {
 	case Alchemy = 'alchemy';

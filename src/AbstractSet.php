@@ -3,6 +3,7 @@
 namespace MallardDuck\MtgCardsSdk;
 
 use Carbon\Carbon;
+use MallardDuck\MtgCardsSdk\Enums\SetType;
 
 class Set
 {
