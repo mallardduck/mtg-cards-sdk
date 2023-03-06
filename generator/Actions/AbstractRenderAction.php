@@ -2,7 +2,10 @@
 
 namespace MallardDuck\MtgCardsSdk\Generator\Actions;
 
+use MallardDuck\MtgCardsSdk\Generator\HooksEmitter\HooksEmitter;
 use Nette\PhpGenerator\PhpNamespace;
+use SQLite3;
+use SQLite3Result;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
@@ -14,10 +17,39 @@ abstract class AbstractRenderAction
     protected ?string $subNamespace = null;
     protected string $renderTo = __DIR__ . '/../../src/';
 
+    public SQLite3Result $results;
+
+    public function __construct(
+        public SQLite3 $db,
+    ) {}
+
+    public function __invoke(): void {
+        $this->query();
+    }
+
+    /**
+     * This must be implemented somewhere, and it needs to set the $results field.
+     * @return void
+     */
+    abstract public function query(): void;
+
+    public static function registerHooks(HooksEmitter $emitter): void
+    {
+
+    }
+
+    public function getBasename(null|string|object $class = null): string
+    {
+        if ($class === null) {
+            $class = $this;
+        }
+        return static::class_basename($class);
+    }
+
      /**
      * Get the class "basename" of the given object / class.
      */
-    public function class_basename(string|object $class): string
+    public static function class_basename(string|object $class): string
     {
         $class = is_object($class) ? get_class($class) : $class;
 

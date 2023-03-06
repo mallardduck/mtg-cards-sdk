@@ -2,7 +2,6 @@
 
 namespace MallardDuck\MtgCardsSdk\Generator\Actions;
 
-use SQLite3;
 use SQLite3Result;
 use function Symfony\Component\String\u;
 
@@ -13,12 +12,9 @@ class GenerateCardTypeAction extends AbstractGenerateEnumAction
 {
     protected string $rendersClass = 'CardType';
 
-    protected SQLite3Result $results;
-
-    public function __construct(
-        SQLite3 $db,
-    ) {
-        $this->results = $db->query(<<<HERE
+    public function query(): void
+    {
+        $this->results = $this->db->query(<<<HERE
 SELECT DISTINCT
     substr(lower(types), 0, instr(types || ',', ',')) AS type_value
 FROM
@@ -30,7 +26,8 @@ HERE
 
     }
 
-    public function __invoke() {
+    public function __invoke(): void {
+        $this->query();
         $enumDetails = [];
         while ($row = $this->results->fetchArray()) {
             $enumDetails[] = [

@@ -13,12 +13,9 @@ class GenerateCardKeywordAction extends AbstractGenerateEnumAction
 {
     protected string $rendersClass = 'CardKeyword';
 
-    protected SQLite3Result $results;
-
-    public function __construct(
-        SQLite3 $db,
-    ) {
-        $this->results = $db->query(<<<HERE
+    public function query(): void
+    {
+        $this->results = $this->db->query(<<<HERE
 SELECT DISTINCT
     substr(keywords, 0, instr(keywords || ',', ',')) AS type_value
 FROM
