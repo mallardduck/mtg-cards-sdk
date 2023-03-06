@@ -2,12 +2,14 @@
 
 namespace MallardDuck\MtgCardsSdk\Generator\Actions;
 
-use Nette\PhpGenerator\EnumType;
-use Nette\PhpGenerator\Parameter;
+use MallardDuck\MtgCardsSdk\Enums\Block;
 use SQLite3;
 use SQLite3Result;
 use function Symfony\Component\String\u;
 
+/**
+ * @see Block
+ */
 class GenerateBlocksAction extends AbstractGenerateEnumAction
 {
     protected string $rendersClass = 'Block';

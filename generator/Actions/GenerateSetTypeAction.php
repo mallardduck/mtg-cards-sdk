@@ -2,12 +2,16 @@
 
 namespace MallardDuck\MtgCardsSdk\Generator\Actions;
 
+use MallardDuck\MtgCardsSdk\Enums\SetType;
 use Nette\PhpGenerator\EnumType;
 use Nette\PhpGenerator\Parameter;
 use SQLite3;
 use SQLite3Result;
 use function Symfony\Component\String\u;
 
+/**
+ * @see SetType
+ */
 class GenerateSetTypeAction extends AbstractGenerateEnumAction
 {
     protected string $rendersClass = 'SetType';
