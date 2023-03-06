@@ -1,5 +1,5 @@
 match ($value) {
 {% for key,case in cases %}
-	{{ key }} => '{{ case }}',
+	{{ key }} => "{{ case }}",
 {% endfor %}
 }
