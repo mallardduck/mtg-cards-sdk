@@ -1,10 +1,5 @@
 {
     "name": "mallardduck/mtg-cards-sdk",
-    "autoload": {
-        "psr-4": {
-            "MallardDuck\\MtgCardsSdk\\": "src/"
-        }
-    },
     "authors": [
         {
             "name": "Dan Pock",
@@ -12,6 +7,34 @@
         }
     ],
     "require": {
-        "nesbot/carbon": "^2.66"
+        "nesbot/carbon": "^2.66",
+        "symfony/string": "^6.2"
+    },
+    "require-dev": {
+        "pestphp/pest": "^1.22",
+        "symfony/console": "^6.2",
+      "ext-sqlite3": "*",
+        "symfony/var-dumper": "^6.2",
+        "twig/twig": "^3.0",
+        "nette/php-generator": "^4.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "MallardDuck\\MtgCardsSdk\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MallardDuck\\MtgCardsSdk\\Generator\\": "generator"
+        }
+    },
+    "scripts": {
+        "generate": "php ./generate",
+        "test": "vendor/bin/pest"
     }
 }

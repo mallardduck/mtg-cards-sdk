@@ -1,0 +1,21 @@
+#!/usr/bin/env php
+<?php
+if (file_exists(__DIR__.'/vendor/autoload.php')) {
+    require __DIR__.'/vendor/autoload.php';
+} else {
+    require __DIR__.'/../../autoload.php';
+}
+
+use MallardDuck\MtgCardsSdk\Generator\Console\GenerateCommand;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\SingleCommandApplication;
+
+$command = new GenerateCommand();
+(new SingleCommandApplication())
+    ->setName('Generate SDK classes') // Optional
+    ->setVersion('0.0.1') // Optional
+    ->setCode($command->execute(...))
+    ->run();
