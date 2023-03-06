@@ -27,7 +27,7 @@ class GenerateSetTypeAction extends AbstractGenerateEnumAction
                 return [
                     'name' => u($value[static::getEnumMainColumn()])->camel()->title()->toString(),
                     'label' => u($value[static::getEnumMainColumn()])->replace('_', ' ')->title()->toString(),
-                    'value'=> $value[static::getEnumMainColumn()],
+                    'value' => u($value[static::getEnumMainColumn()])->snake()->toString(),
                 ];
             },
         );

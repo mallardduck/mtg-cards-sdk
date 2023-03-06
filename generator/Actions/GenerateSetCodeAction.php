@@ -29,8 +29,8 @@ class GenerateSetCodeAction extends AbstractGenerateEnumAction
             function (array $data): array {
                 return [
                     'name' => u(static::digitToEnglish($data['name']))->camel()->title()->toString(),
-                    'label' => u($data['code'])->replace('_', ' ')->title()->toString(),
-                    'value'=> $data['code'],
+                    'label' => u($data[static::getEnumMainColumn()])->replace('_', ' ')->title()->toString(),
+                    'value' => u($data[static::getEnumMainColumn()])->snake()->toString(),
                     'extra' => [
                         'full-name' => $data['name'],
                         'parentCode' => $data['parentCode'],
@@ -78,26 +78,5 @@ NOW
     public function query(): void
     {
         $this->results = $this->db->query('SELECT DISTINCT code, name, parentCode FROM sets;');
-    }
-
-    private static function digitToEnglish($input) {
-        if (!filter_var($input[0], FILTER_VALIDATE_INT)) {
-            return $input;
-        }
-
-        $spelloutFormatter = new \NumberFormatter("en", \NumberFormatter::SPELLOUT);
-        $words = explode(' ', $input);
-        preg_match_all('/\d+|[a-zA-Z]+/', $words[0], $matches);
-        $result = array();
-        foreach ($matches[0] as $match) {
-            if (ctype_alpha($match)) {
-                $result[] = $match;
-            } else {
-                $result[] = u($spelloutFormatter->format($match))->camel()->title()->toString();
-            }
-        }
-        $words[0] = implode('', $result);
-
-        return implode(' ', $words);
     }
 }

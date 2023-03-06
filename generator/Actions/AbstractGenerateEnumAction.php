@@ -5,6 +5,8 @@ namespace MallardDuck\MtgCardsSdk\Generator\Actions;
 use MallardDuck\MtgCardsSdk\Generator\Events;
 use MallardDuck\MtgCardsSdk\Generator\HooksEmitter\HooksEmitter;
 use Nette\PhpGenerator\EnumType;
+use Nette\PhpGenerator\PhpFile;
+use Nette\PhpGenerator\PsrPrinter;
 use function Symfony\Component\String\u;
 
 abstract class AbstractGenerateEnumAction extends AbstractRenderAction
@@ -57,11 +59,6 @@ abstract class AbstractGenerateEnumAction extends AbstractRenderAction
         ];
     }
 
-    protected function getResultsRowArray(): array|bool
-    {
-        return $this->results->fetchArray(SQLITE3_ASSOC);
-    }
-
     /**
      * @param array{name: string, label: string, value: string}[] $details
      * @return string
@@ -71,9 +68,16 @@ abstract class AbstractGenerateEnumAction extends AbstractRenderAction
         $emitter = HooksEmitter::getInstance();
         $enum = new EnumType($this->rendersClass);
         try {
+            $enum->addMethod('tryFromLabel')
+                ->setStatic()
+                ->setReturnType('self')
+                ->setBody("return {$this->rendersClass}::tryFrom(u(\$label)->snake()->toString());")
+                ->addParameter('label')
+                ->setType('string')
+            ;
             $enum->addMethod('label')
                 ->setReturnType('string')
-                ->setBody('return static::getLabel($this);');
+                ->setBody("return {$this->rendersClass}::getLabel(\$this);");
             $getLabelMethod = $enum->addMethod('getLabel')
                 ->setStatic(true)
                 ->setReturnType('string');
@@ -101,11 +105,16 @@ abstract class AbstractGenerateEnumAction extends AbstractRenderAction
                 );
             }
             $namespace = $this->getNamespace();
+            $namespace->addUseFunction('Symfony\Component\String\u');
             $namespace->add($enum);
         } catch (\Throwable $throwable) {
             dd($throwable, $this->getBasename(),);
         }
 
-        return (string) $namespace;
+        $file = new PhpFile;
+        $file->setStrictTypes();
+        $file->addNamespace($namespace);
+
+        return (new PsrPrinter)->printFile($file);
     }
 }

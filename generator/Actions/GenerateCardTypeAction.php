@@ -16,7 +16,7 @@ class GenerateCardTypeAction extends AbstractGenerateEnumAction
 
     public static function getEnumMainColumn(): string
     {
-        return 'types';
+        return 'type_value';
     }
 
     public static function registerHooks(HooksEmitter $emitter): void
@@ -26,9 +26,9 @@ class GenerateCardTypeAction extends AbstractGenerateEnumAction
             Events::PreEnumFormat->eventSuffixedKey(static::class_basename(static::class)),
             function (array $data): array {
                 return [
-                    'name' => u($data['type_value'])->camel()->title()->toString(),
-                    'label' => u($data['type_value'])->replace('_', ' ')->title()->toString(),
-                    'value'=> $data['type_value'],
+                    'name' => u($data[static::getEnumMainColumn()])->camel()->title()->toString(),
+                    'label' => u($data[static::getEnumMainColumn()])->replace('_', ' ')->title()->toString(),
+                    'value' => u($data[static::getEnumMainColumn()])->snake()->toString(),
                 ];
             },
         );
@@ -38,11 +38,11 @@ class GenerateCardTypeAction extends AbstractGenerateEnumAction
     {
         $this->results = $this->db->query(<<<HERE
 SELECT DISTINCT
-    substr(lower({$this->getEnumMainColumn()}), 0, instr({$this->getEnumMainColumn()} || ',', ',')) AS type_value
+    substr(lower(types), 0, instr(types || ',', ',')) AS {$this->getEnumMainColumn()}
 FROM
     cards
 WHERE
-    type_value IS NOT NULL;
+    {$this->getEnumMainColumn()} IS NOT NULL;
 HERE
         );
     }

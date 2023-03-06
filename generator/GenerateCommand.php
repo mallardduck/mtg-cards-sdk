@@ -19,6 +19,7 @@ class GenerateCommand extends Command
         Actions\GenerateCardSubtypeAction::class,
         Actions\GenerateCardKeywordAction::class,
         Actions\GenerateCardBorderColorAction::class,
+        Actions\GenerateSetsAction::class,
     ];
 
     public function execute(InputInterface $input, OutputInterface $output)

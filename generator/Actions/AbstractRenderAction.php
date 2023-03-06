@@ -8,11 +8,12 @@ use SQLite3;
 use SQLite3Result;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use function Symfony\Component\String\u;
 
 abstract class AbstractRenderAction
 {
     const NAMESPACE_BASE = "MallardDuck\MtgCardsSdk";
-    protected string $rendersClass = 'SetType';
+    protected string $rendersClass;
 
     protected ?string $subNamespace = null;
     protected string $renderTo = __DIR__ . '/../../src/';
@@ -32,6 +33,11 @@ abstract class AbstractRenderAction
      * @return void
      */
     abstract public function query(): void;
+
+    protected function getResultsRowArray(): array|bool
+    {
+        return $this->results->fetchArray(SQLITE3_ASSOC);
+    }
 
     public static function registerHooks(HooksEmitter $emitter): void
     {
@@ -78,16 +84,33 @@ abstract class AbstractRenderAction
         $renderPath = sprintf(
             '%s%s',
             $this->renderTo,
-            str_replace('\\', '/', $this->subNamespace)
+            str_replace('\\', '/', $this->subNamespace ?? '')
         );
         if (!is_dir($renderPath)) {
             mkdir($renderPath);
         }
         $renderFile = $renderPath . '/' . $this->rendersClass . '.php';
-        file_put_contents($renderFile, sprintf(
-            '<?php declare(strict_types=1);%1$s%1$s%2$s',
-            PHP_EOL,
-            $code
-        ));
+        file_put_contents($renderFile, $code);
+    }
+
+    protected static function digitToEnglish($input) {
+        if (!filter_var($input[0], FILTER_VALIDATE_INT)) {
+            return $input;
+        }
+
+        $spelloutFormatter = new \NumberFormatter("en", \NumberFormatter::SPELLOUT);
+        $words = explode(' ', $input);
+        preg_match_all('/\d+|[a-zA-Z]+/', $words[0], $matches);
+        $result = array();
+        foreach ($matches[0] as $match) {
+            if (ctype_alpha($match)) {
+                $result[] = $match;
+            } else {
+                $result[] = u($spelloutFormatter->format($match))->camel()->title()->toString();
+            }
+        }
+        $words[0] = implode('', $result);
+
+        return implode(' ', $words);
     }
 }
